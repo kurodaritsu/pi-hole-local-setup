@@ -131,3 +131,27 @@ If the host's `systemd-resolved` stub listener occupies port 53
 all. Disable the stub listener (`DNSStubListener=no` in
 `/etc/systemd/resolved.conf`) or free port 53 some other way before
 starting the container.
+
+> [!WARNING]
+> Keep `resolv.conf` present in the repo root. If it's missing, podman
+> silently creates a *directory* at that bind-mount path instead of
+> erroring, and the container fails in a confusing way.
+
+### Notes on host privileges
+
+`compose.yaml` binds ports to `127.0.0.1` only - Pi-hole is not reachable
+from your LAN or the internet, matching the single-device scope of this
+setup.
+
+Rootless podman binding port 53 at all requires lowering the host's
+unprivileged port floor:
+
+```
+net.ipv4.ip_unprivileged_port_start=53
+```
+
+This is host-wide and persists across reboots (see `/etc/sysctl.d/`).
+It means *any* unprivileged local process on this machine can now bind
+ports 53-1023, not just this container. Accepted tradeoff for running
+Pi-hole rootless on port 53 - only a concern if you run other, less
+trusted workloads on the same host.
