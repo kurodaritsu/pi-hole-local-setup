@@ -5,7 +5,7 @@ Single-device local-only Pi-hole DNS through a container. This is the setup that
 Tested on `podman` (with `podman-compose`) - commands below use `docker`
 syntax, swap in `podman-compose` if that's your stack.
 
-Can't guarantee that this setup will work by default. See [Troubleshooting](./README.md#troubleshooting) for details.
+Can't guarantee that this setup will work by default. See [Troubleshooting](#troubleshooting) for details.
 
 > *Q: Why don't you apply this to your router so your other devices have pi-hole as well?*
 
@@ -19,9 +19,9 @@ I can do that. I just need to get access to the router settings which I don't ha
 
 1. Clone this repo
 2. Create `.env` file. See [`.env.example`](./.env.example) for details
-3. [Setup `resolv.conf` with your upstream nameservers](./README.md#set-upstream-nameservers)
+3. [Setup `resolv.conf` with your upstream nameservers](#set-upstream-nameservers)
 4. Run `docker compose up -d` (or `podman-compose up -d`)
-5. [Set Pi-hole container as device's DNS resolver](./README.md#set-pi-hole-container-as-devices-dns-resolver)
+5. [Set Pi-hole container as device's DNS resolver](#set-pi-hole-container-as-devices-dns-resolver)
 
 After which, your Pi-hole is now active to your device.
 
@@ -119,7 +119,7 @@ nameserver 1.0.0.1
 
 The example above points to Cloudflare - swap in whatever upstream you
 prefer (your ISP's resolver, Google's `8.8.8.8`/`8.8.4.4`, a self-hosted
-resolver, etc). `compose.yaml` also sets `FTLCONF_dns_upstreams` to match;
+resolver, etc). [`compose.yaml`](./compose.yaml) also sets `FTLCONF_dns_upstreams` to match;
 update both if you change the nameservers.
 
 This file is bind-mounted into the container to bypass podman's per-network DNS
@@ -139,7 +139,7 @@ starting the container.
 
 ### Notes on host privileges
 
-`compose.yaml` binds ports to `127.0.0.1` only - Pi-hole is not reachable
+[`compose.yaml`](./compose.yaml) binds ports to `127.0.0.1` only - Pi-hole is not reachable
 from your LAN or the internet, matching the single-device scope of this
 setup.
 
