@@ -10,7 +10,7 @@ services:
       TZ: ${TZ}
       FTLCONF_webserver_api_password: ${ADMIN_PASSWORD}
       FTLCONF_dns_listeningMode: 'ALL'
-      FTLCONF_dns_upstreams: '1.1.1.1;1.0.0.1'
+      FTLCONF_dns_upstreams: '1.1.1.1;1.0.0.1;2606:4700:4700::1111;2606:4700:4700::1001'
     volumes:
       - ./etc-pihole:/etc/pihole
       - ./resolv.conf:/etc/resolv.conf:ro
@@ -21,6 +21,8 @@ services:
 
 networks:
   pihole:
+    enable_ipv6: true
     ipam:
       config:
         - subnet: 10.89.2.0/24
+        - subnet: fd00:89:2::/64
