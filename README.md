@@ -110,21 +110,20 @@ resolvectl domain <iface> "~."
 
 Pi-hole needs somewhere to forward queries it doesn't block. Edit
 [`resolv.conf`](./resolv.conf) and list the nameserver(s) you want to use,
-one per line:
+one per line.
 
-```
-nameserver 1.1.1.1
-nameserver 1.0.0.1
-```
+> [!WARNING]
+> Keep `resolv.conf` present in the repo root. If it's deleted, `podman`
+> silently creates a *directory* at that bind-mount path instead of
+> erroring, and the container fails in a confusing way.
 
-The example above points to Cloudflare - swap in whatever upstream you
-prefer (your ISP's resolver, Google's `8.8.8.8`/`8.8.4.4`, a self-hosted
-resolver, etc). [`compose.yaml`](./compose.yaml) also sets `FTLCONF_dns_upstreams` to match;
-update both if you change the nameservers.
+By default, it points to Cloudflare (ipv4 and ipv6). Change whatever
+upstream you prefer. [`compose.yaml`](./compose.yaml) also sets
+`FTLCONF_dns_upstreams` to match. Update both if you change the nameservers.
 
-This file is bind-mounted into the container to bypass podman's per-network DNS
-forwarder (aardvark-dns) - without it, the container's own startup DNS
-check hairpins back to itself and hangs.
+The [`resolv.conf`](./resolv.conf) is bind-mounted into the container
+to bypass podman's per-network DNS forwarder (aardvark-dns). Without it,
+the container's own startup DNS check hairpins back to itself and hangs.
 
 If the host's `systemd-resolved` stub listener occupies port 53
 (`127.0.0.53`/`127.0.0.54`), the container can't bind `0.0.0.0:53` at
@@ -132,25 +131,16 @@ all. Disable the stub listener (`DNSStubListener=no` in
 `/etc/systemd/resolved.conf`) or free port 53 some other way before
 starting the container.
 
-> [!WARNING]
-> Keep `resolv.conf` present in the repo root. If it's missing, podman
-> silently creates a *directory* at that bind-mount path instead of
-> erroring, and the container fails in a confusing way.
+### Other caveats
 
-### Notes on host privileges
-
-[`compose.yaml`](./compose.yaml) binds ports to `127.0.0.1` only - Pi-hole is not reachable
-from your LAN or the internet, matching the single-device scope of this
-setup.
-
-Rootless podman binding port 53 at all requires lowering the host's
+Rootless podman binding port 53 requires lowering the host's
 unprivileged port floor:
 
 ```
 net.ipv4.ip_unprivileged_port_start=53
 ```
 
-This is host-wide and persists across reboots (see `/etc/sysctl.d/`).
+This setup is host-wide and persists across reboots (see `/etc/sysctl.d/`).
 It means *any* unprivileged local process on this machine can now bind
 ports 53-1023, not just this container. Accepted tradeoff for running
 Pi-hole rootless on port 53 - only a concern if you run other, less
