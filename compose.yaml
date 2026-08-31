@@ -1,17 +1,19 @@
+# For more details, see https://docs.pi-hole.net/docker/
+
 services:
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
     ports:
-      - "127.0.0.1:53:53/tcp"
-      - "127.0.0.1:53:53/udp"
-      - "127.0.0.1:80:80/tcp"
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
     environment:
       TZ: ${TZ}
       FTLCONF_webserver_api_password: ${ADMIN_PASSWORD}
       FTLCONF_dns_listeningMode: 'ALL'
       FTLCONF_dns_upstreams: '1.1.1.1;1.0.0.1;2606:4700:4700::1111;2606:4700:4700::1001'
-      FTLCONF_database_maxDBdays: '30'
+      FTLCONF_database_maxDBdays: '90'
     volumes:
       - ./etc-pihole:/etc/pihole
       - ./resolv.conf:/etc/resolv.conf:ro
